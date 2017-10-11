@@ -1,0 +1,107 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+MACHINE_NAME = 'arduino'
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  # Every Vagrant virtual environment requires a box to build off of.
+  #config.vm.box = "base"
+  config.vm.box = "ubuntu-server-14.04-x86_64"
+
+  config.vm.hostname = MACHINE_NAME
+  config.vm.define MACHINE_NAME do |t|
+  end
+
+  # helpful message
+  config.vm.post_up_message = "login with: vagrant ssh\nstart picocom using: p9600 or P115200"
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+
+  # shared folders
+  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "..", "/home/vagrant/gratis"
+
+  # disable default synced folder
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # customise VritualBox
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = MACHINE_NAME
+    vb.memory = 1024
+    vb.cpus = 2
+
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+
+    vb.customize ["modifyvm", :id, "--uart1", "off"]
+    vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
+    # vb.customize ["modifyvm", :id, "--uart1", "0x3f8", "4"]
+    # vb.customize ["modifyvm", :id, "--uartmode1", "/dev/cuaU0"]
+    vb.customize ["modifyvm", :id, "--uart2", "off"]
+    vb.customize ["modifyvm", :id, "--uartmode2", "disconnected"]
+    # vb.customize ["modifyvm", :id, "--uart1", "0x2f8", "3"]
+    # vb.customize ["modifyvm", :id, "--uartmode1", "/dev/cuaU1"]
+
+    vb.customize ["modifyvm", :id, "--usb", "on"]
+    vb.customize ["modifyvm", :id, "--usbehci", "off"]
+
+    # ***** FIX THIS: always adds new filters on "up" *****
+
+    # Mega 1280
+    vb.customize ["usbfilter", "add", "1",
+                  "--target", :id,
+                  "--name", "Mega1280",
+                  "--action", "hold",
+                  "--active", "yes",
+                  "--vendorid", "0x0403",
+                  "--productid", "0x6001"]
+    # UNO
+    vb.customize ["usbfilter", "add", "2",
+                  "--target", :id,
+                  "--name", "Uno",
+                  "--action", "hold",
+                  "--active", "yes",
+                  "--vendorid", "0x2341",
+                  "--productid", "0x0043"]
+
+  end
+
+  # ssh configuration
+  config.ssh.forward_agent = true
+  config.ssh.forward_x11 = true
+
+
+  # Ansible provisioning
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook.yaml"
+
+    ansible.sudo = true
+    ansible.host_key_checking = false
+    #ansible.verbose =  'vvv'
+
+    # prevent seahorse/gpg-agent providing aditional keys (i.e. only use listed identities)
+    ansible.raw_ssh_args = '-o IdentitiesOnly=yes'
+
+    ansible.extra_vars = {
+      ansible_ssh_user: 'vagrant',
+      ansible_connection: 'ssh',
+    }
+  end
+
+end
