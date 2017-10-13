@@ -7,9 +7,9 @@ After=epd-fuse.service
 Type=simple
 PrivateDevices=no
 
-WorkingDirectory=/home/repaper/gratis/PlatformWithOS/demo
-user=repaper
-group=repaper
+WorkingDirectory=/home/pi/gratis/PlatformWithOS/demo
+user=pi
+group=pi
 
 ExecStart=/usr/bin/python2 Clock27.py
 

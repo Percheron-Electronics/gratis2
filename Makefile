@@ -5,8 +5,8 @@ PREFIX ?= /usr
 #SERVICE ?= initd
 SERVICE ?= systemd
 
-PANEL_VERSION ?= NOT-SET
-EPD_IO ?= epd_io.h
+PANEL_VERSION ?= V231_G2
+EPD_IO ?= epd_io_free_uart.h
 
 SUPPORTED_PANEL_VERSIONS = V110_G1 V230_G2 V231_G2
 
