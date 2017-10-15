@@ -26,6 +26,7 @@ from EPD import EPD
 WHITE = 1
 BLACK = 0
 
+
 # fonts are in different places on Raspbian/Angstrom so search
 possible_fonts = [
     '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf',            # Debian B.B
@@ -69,23 +70,22 @@ else: # May, June, July
 DATE_Y=50
 
 # day of week
+def get_weekday_x():
 
-if (now.weekday() in [1]): # Tuesday
-    WEEKDAY_FONT_SIZE  = 44
-    WEEKDAY_X = 40
+    if (now.weekday() in [1]): # Tuesday
+        WEEKDAY_X = 40
 
-elif (now.weekday() in [2]): # Wednesday
-    WEEKDAY_FONT_SIZE  = 44
-    WEEKDAY_X = 13
+    elif (now.weekday() in [2]): # Wednesday
+        WEEKDAY_X = 13
 
-elif (now.weekday() in [3, 5]): # Thursday, Saturday
-    WEEKDAY_FONT_SIZE  = 44
-    WEEKDAY_X = 30
+    elif (now.weekday() in [3, 5]): # Thursday, Saturday
+        WEEKDAY_X = 30
 
-else:
-    WEEKDAY_FONT_SIZE  = 48 # Monday, Friday, Sunday
-    WEEKDAY_X = 45
-
+    else:
+        WEEKDAY_X = 45 # Monday, Friday, Sunday
+    return WEEKDAY_X    
+    
+WEEKDAY_FONT_SIZE  = 44
 WEEKDAY_Y = 3
 
 # temperature
@@ -173,7 +173,7 @@ def demo(epd):
         # clear the display buffer
         draw.rectangle((0, 0, width, height), fill=WHITE, outline=WHITE)
     # previous_day = 0
-
+        WEEKDAY_X = get_weekday_x()
     # first_start = True
         draw.rectangle((1, 1, width - 1, height - 1), fill=WHITE, outline=BLACK)
         draw.rectangle((2, 2, width - 2, height - 2), fill=WHITE, outline=BLACK)
@@ -202,8 +202,11 @@ def demo(epd):
 
         # display image on the panel
         epd.display(image)
-        epd.update()
-
+        if (now.minute % 5) == 0:
+            epd.update()
+        else:
+            epd.partial_update()
+        
         while True:
             now = datetime.today()
             if now.second == 0:
