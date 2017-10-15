@@ -48,7 +48,7 @@ EPD_FUSE_SH = ${PLATFORM}/epd-fuse.sh
 check-compiled:
 	[ -e epd_fuse ] || false
 
-# install binary driver ans associated config/startup or service files
+# install binary driver and associated config/startup or service files
 .PHONY: install
 install: check-compiled
 	[ ! -d "${DESTDIR}${SBINDIR}" ] && mkdir -p "${DESTDIR}${SBINDIR}" || true
@@ -58,6 +58,8 @@ install: check-compiled
 ifeq (systemd,${SERVICE})
 	[ ! -d "${DESTDIR}${LIBDIR}/systemd/system" ] && mkdir -p "${DESTDIR}${LIBDIR}/systemd/system" || true
 	install --group=root --mode=644 --owner=root epd-fuse.service "${DESTDIR}${LIBDIR}/systemd/system/epd-fuse.service"
+	-systemctl daemon-reload
+	-systemctl enable epd-fuse
 else # otherwise Debian
 	if [ -e "${EPD_FUSE_CONF}" ] ; \
 	then \
