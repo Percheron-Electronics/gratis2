@@ -4,7 +4,6 @@ Requires=epd-fuse.service
 After=epd-fuse.service
 
 [Service]
-ExecStartPre=/bin/sleep 3
 Type=simple
 PrivateDevices=no
 
