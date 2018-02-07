@@ -3,6 +3,7 @@ Description=A Fuse driver for the Repaper.org EPD
 After=network.target
 
 [Service]
+ExecStartPre=/bin/sleep 3
 Type=forking
 PrivateDevices=no
 SyslogLevel=err
