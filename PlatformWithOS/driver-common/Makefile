@@ -25,11 +25,17 @@ CFLAGS += ${FUSE_CFLAGS}
 CFLAGS += -Wall -Werror -std=gnu99
 CFLAGS += -I${PLATFORM}
 CFLAGS += -I${EPD_DIR}
+ifeq ($(PLATFORM),../RaspberryPi)
+CFLAGS += -I/opt/vc/include
+endif
 CFLAGS += -I.
 CFLAGS += -DEPD_IO='"${EPD_IO}"'
 
 LDFLAGS += ${FUSE_LDFLAGS}
 LDFLAGS += -lrt
+ifeq ($(PLATFORM),../RaspberryPi)
+LDFLAGS += -L/opt/vc/lib -lbcm_host
+endif
 
 RM = rm -f
 
@@ -58,6 +64,8 @@ install: check-compiled
 ifeq (systemd,${SERVICE})
 	[ ! -d "${DESTDIR}${LIBDIR}/systemd/system" ] && mkdir -p "${DESTDIR}${LIBDIR}/systemd/system" || true
 	install --group=root --mode=644 --owner=root epd-fuse.service "${DESTDIR}${LIBDIR}/systemd/system/epd-fuse.service"
+	[ ! -d "${DESTDIR}${SYSCONFDIR}/udev/rules.d" ] && mkdir -p "${DESTDIR}${SYSCONFDIR}/udev/rules.d" || true
+	install --group=root --mode=644 --owner=root 98-spidev.rules "${DESTDIR}${SYSCONFDIR}/udev/rules.d/98-spidev.rules"
 	-systemctl daemon-reload
 	-systemctl enable epd-fuse
 else # otherwise Debian
