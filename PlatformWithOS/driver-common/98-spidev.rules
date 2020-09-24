@@ -1,0 +1,2 @@
+KERNEL=="spidev0.0", SUBSYSTEM=="spidev", TAG+="systemd"
+
